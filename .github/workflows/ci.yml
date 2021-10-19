@@ -1,0 +1,64 @@
+name: Build
+
+on:
+  push:
+
+env:
+  TAG_NAME: ${{ format('vpnkit:{0}-{1}', github.sha, github.run_number) }}
+  RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/attempts/{3}', github.server_url, github.repository, github.run_id, github.run_attempt) }}
+
+jobs:
+
+  build-vpnkit-exe:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cleanup
+      run: docker image prune -a -f
+    - name: Pull
+      run: docker pull ocaml/opam:windows-mingw-ltsc2019-ocaml-4.11
+    - name: Build
+      run: docker build -f Dockerfile.win2 -t $env:TAG_NAME .
+    - name: COPY
+      run: |
+        docker create --name vpnkit $env:TAG_NAME
+        docker cp vpnkit:"C:/vpnkit.exe" ./vpnkit.exe
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with: 
+        name: vpnkit
+        path: vpnkit.exe
+
+  build-vpnkit-tap-vsockd:
+    needs: build-vpnkit-exe
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: docker build -t vpnkit-tap-vsockd ./c/vpnkit-tap-vsockd
+    - name: Fetch vpnkit.exe
+      uses: actions/download-artifact@v2
+      with:
+        name: vpnkit
+    - name: Package
+      run: |
+        CONTAINER_ID=$(docker create vpnkit-tap-vsockd)
+        docker cp $CONTAINER_ID:/sbin/vpnkit-tap-vsockd ./vpnkit-tap-vsockd
+        sha256sum vpnkit-tap-vsockd | tee vpnkit-tap-vsockd.sha256
+        sha256sum vpnkit.exe | tee vpnkit.exe.sha256
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with: 
+        name: vpnkit
+        path: |
+          vpnkit-tap-vsockd
+          vpnkit-tap-vsockd.sha256
+          vpnkit.exe
+          vpnkit.exe.sha256
+
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: e2e-vpnkit-tap-vsockd
+      run: make e2e-vpnkit-tap-vsockd

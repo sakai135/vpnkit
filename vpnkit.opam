@@ -29,7 +29,6 @@ depends: [
   "arp" {= "2.3.1"}
   "astring"
   "base64" {>= "3.5.0"}
-  "charrua-client-mirage" { = "0.9" }
   "charrua-client"
   "charrua-server"
   "charrua" {>= "1.3.0"}
@@ -37,8 +36,6 @@ depends: [
   "cohttp-lwt" {>= "0.99.0"}
   "cstruct-lwt"
   "cstruct" {= "5.2.0"}
-  "datakit-server-9p" {>= "0.11.0"}
-  "datakit-server" {>= "0.11.0"}
   "ezjsonm"
   "fd-send-recv" {>= "2.0.0"}
   "fmt"
@@ -48,7 +45,7 @@ depends: [
   "logs"
   "luv_unix"
   "luv"
-  "lwt" {= "5.4.0"}
+  "lwt" {>= "5.4.0"}
   "mirage-channel" {>= "4.0.1"}
   "mirage-clock-unix" {= "3.1.0"}
   "mirage-clock" {= "3.1.0"}

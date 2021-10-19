@@ -726,14 +726,14 @@ module Sockets = struct
                                             address")))
                             | Some x -> (
                                 match Ipaddr.of_string x with
-                                | None ->
+                                | Error _ ->
                                     Luv.Handle.close tcp (fun () ->
                                         return
                                           (Error
                                              (`Msg
                                                ("TCP.getsockname returned an \
                                                  invalid IP: " ^ x))))
-                                | Some ip -> (
+                                | Ok ip -> (
                                     match Luv.Sockaddr.port sockaddr with
                                     | None ->
                                         Luv.Handle.close tcp (fun () ->
@@ -1271,8 +1271,8 @@ module Dns = struct
                         | None -> acc
                         | Some ip -> (
                             match Ipaddr.of_string ip with
-                            | Some ip -> ip :: acc
-                            | None -> acc))
+                            | Ok ip -> ip :: acc
+                            | Error _ -> acc))
                     | _ -> acc)
                   [] x
               in
