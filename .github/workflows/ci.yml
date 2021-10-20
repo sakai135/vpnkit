@@ -22,7 +22,7 @@ jobs:
     - name: COPY
       run: |
         docker create --name vpnkit $env:TAG_NAME
-        docker cp vpnkit:"C:/opam/.opam/4.11/bin/vpnkit.exe" ./vpnkit.exe
+        docker cp vpnkit:"C:/vpnkit.exe" ./vpnkit.exe
     - name: Artifacts
       uses: actions/upload-artifact@v2
       with: 
