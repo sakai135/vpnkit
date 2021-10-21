@@ -1,4 +1,4 @@
-FROM ocaml/opam:windows-mingw-ltsc2019-ocaml-4.11 as build
+FROM ocaml/opam:windows-mingw-ltsc2019-ocaml-4.12 as build
 
 RUN C:\cygwin-setup-x86_64.exe --no-admin --no-shortcuts --no-version-check --quiet-mode --verbose --packages=pkgconf
 
