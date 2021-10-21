@@ -18,6 +18,10 @@ RUN opam pin add protocol-9p.2.0.1 "https://github.com/djs55/ocaml-9p.git" -n
 RUN opam pin add protocol-9p-unix.2.0.1 "https://github.com/djs55/ocaml-9p.git" -n
 
 RUN sudo apk add libtool autoconf automake # missing depexts
+RUN opam pin add luv.0.5.8 https://github.com/aantron/luv/releases/download/0.5.8/luv-0.5.8.tar.gz -n
+RUN opam pin add luv_unix.0.5.8 https://github.com/aantron/luv/releases/download/0.5.8/luv-0.5.8.tar.gz -n
+# A small fork of the tcpip stack
+RUN opam pin add tcpip.3.3.0 "https://github.com/djs55/mirage-tcpip.git#vpnkit-20210417" -n
 
 ADD . /home/opam/vpnkit
 RUN opam pin add vpnkit /home/opam/vpnkit -n
