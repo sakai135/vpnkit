@@ -58,7 +58,6 @@ eval $(opam config env)
 export PATH="${OPAMROOT}/${OPAM_COMP}/bin:${PATH}"
 
 opam install depext -y -v
-opam install depext-cygwinports -y || true
 
 OPAMBUILDTEST=1 opam depext -u vpnkit
 
