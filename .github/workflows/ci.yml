@@ -1,0 +1,67 @@
+name: Build
+
+on:
+  push:
+
+env:
+  TAG_NAME: ${{ format('vpnkit:{0}-{1}', github.sha, github.run_number) }}
+  RUN_URL: ${{ format('{0}/{1}/actions/runs/{2}/attempts/{3}', github.server_url, github.repository, github.run_id, github.run_attempt) }}
+
+jobs:
+  
+  build-vpnkit-exe:
+    runs-on: windows-2019
+    steps:
+    - uses: cygwin/cygwin-install-action@master
+      with:
+        packages: git unzip rsync patch make m4 curl wget mingw64-x86_64-gcc-core pkgconf flexdll pkg-config autoconf2.1 autoconf2.5 autoconf
+    - name: git config
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+    - uses: actions/checkout@v2
+    - name: Build
+      run: |
+        Remove-Item -Recurse .\repo\win32\packages\upstream\dnssd.0.5.0
+        Get-Content .\repo\darwin\packages\local\vpnkit.local\opam | Where-Object { $_ -notmatch "dnssd" } | Set-Content .\repo\darwin\packages\local\vpnkit.local\opam_new
+        Move-Item -Force .\repo\darwin\packages\local\vpnkit.local\opam_new .\repo\darwin\packages\local\vpnkit.local\opam
+        C:\cygwin\bin\bash.exe -c 'export PATH="/usr/local/bin:${PATH}" && unset OPAMROOT && make'
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with: 
+        name: vpnkit
+        path: vpnkit.exe
+
+  build-vpnkit-tap-vsockd:
+    needs: build-vpnkit-exe
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: docker build -t vpnkit-tap-vsockd ./c/vpnkit-tap-vsockd
+    - name: Fetch vpnkit.exe
+      uses: actions/download-artifact@v2
+      with:
+        name: vpnkit
+    - name: Package
+      run: |
+        CONTAINER_ID=$(docker create vpnkit-tap-vsockd)
+        docker cp $CONTAINER_ID:/sbin/vpnkit-tap-vsockd ./vpnkit-tap-vsockd
+        sha256sum vpnkit-tap-vsockd | tee vpnkit-tap-vsockd.sha256
+        sha256sum vpnkit.exe | tee vpnkit.exe.sha256
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with: 
+        name: vpnkit
+        path: |
+          vpnkit-tap-vsockd
+          vpnkit-tap-vsockd.sha256
+          vpnkit.exe
+          vpnkit.exe.sha256
+
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: e2e-vpnkit-tap-vsockd
+      run: make e2e-vpnkit-tap-vsockd
