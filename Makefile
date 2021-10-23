@@ -50,8 +50,8 @@ vpnkit.tgz: vpnkit.exe
 
 .PHONY: vpnkit.exe
 vpnkit.exe: $(OPAMROOT)
-	opam config --root $(OPAMROOT) --switch $(OPAM_COMP) exec -- sh -c 'jbuilder build --dev src/bin/main.exe'
-	cp _build/default/src/bin/main.exe vpnkit.exe
+	opam config --root $(OPAMROOT) --switch $(OPAM_COMP) exec -- sh -c 'dune build -p vpnkit -j 1'
+	cp _build/default/vpnkit.exe vpnkit.exe
 
 %: %.in
 	@echo "  GEN     " $@
