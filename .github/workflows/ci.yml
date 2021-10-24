@@ -34,7 +34,6 @@ jobs:
         cd $GITHUB_WORKSPACE
         eval $(opam env)
         opam pin add vpnkit . -n
-        opam depext vpnkit -y
         opam install vpnkit -y
       shell: C:\cygwin\bin\bash.EXE --login --norc -eo pipefail -o igncr '{0}'
     - name: artifacts
