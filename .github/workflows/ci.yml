@@ -15,7 +15,7 @@ jobs:
     - name: cygwin
       uses: cygwin/cygwin-install-action@master
       with:
-        packages: rsync patch diffutils curl make unzip git m4 perl mingw64-x86_64-gcc-core autoconf2.1 autoconf2.5 libpkgconf3 autoconf pkgconf pkg-config libuv
+        packages: rsync patch diffutils curl make unzip git m4 perl mingw64-x86_64-gcc-core autoconf2.1 autoconf2.5 libpkgconf3 autoconf pkgconf pkg-config libuv-devel
     - name: opam
       run: |
         curl -LO https://github.com/fdopen/opam-repository-mingw/releases/download/0.0.0.2/opam64.tar.xz
@@ -33,6 +33,9 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE
         eval $(opam env)
+        export PKG_CONFIG_PATH="/usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig:/usr/x86_64-w64-mingw64/sys-root/mingw/lib/pkgconfig:$PKG_CONFIG_PATH"
+        ls /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig
+        ls /usr/x86_64-w64-mingw64/sys-root/mingw/lib/pkgconfig
         opam pin add uwt "https://github.com/fdopen/uwt.git#c43349bf3689181756feb341e3896d4a0a695523" -n
         opam pin add tcpip.3.3.0 "https://github.com/djs55/mirage-tcpip.git#vpnkit-20210417" -n
         opam pin add vpnkit . -n
