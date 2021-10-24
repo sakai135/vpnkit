@@ -25,11 +25,12 @@ jobs:
         git config --global core.eol lf
     - name: checkout
       uses: actions/checkout@v2
-    - name: remove dnssd
+    - name: remove unsupported
       run: |
         Remove-Item -Recurse .\repo\win32\packages\upstream\dnssd.0.5.0
         Get-Content .\repo\darwin\packages\local\vpnkit.local\opam | Where-Object { $_ -notmatch "dnssd" } | Set-Content .\repo\darwin\packages\local\vpnkit.local\opam_new
         Move-Item -Force .\repo\darwin\packages\local\vpnkit.local\opam_new .\repo\darwin\packages\local\vpnkit.local\opam
+        Remove-Item .\dune-project
     - name: build
       run: |
         cd $GITHUB_WORKSPACE

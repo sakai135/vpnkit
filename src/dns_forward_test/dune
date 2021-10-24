@@ -1,7 +1,3 @@
 (executables
  (names test)
  (libraries dns_forward dns_forward_lwt_unix lwt-dllist logs logs.fmt alcotest))
-
-(rule
- (alias  runtest)
- (action (run ./test.exe)))
