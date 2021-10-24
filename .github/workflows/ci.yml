@@ -15,24 +15,27 @@ jobs:
     - name: cygwin
       uses: cygwin/cygwin-install-action@master
       with:
-        packages: git unzip rsync patch make m4 curl wget mingw64-x86_64-gcc-core pkgconf flexdll pkg-config autoconf2.1 autoconf2.5 autoconf
+        packages: rsync patch diffutils curl make unzip git m4 perl mingw64-x86_64-gcc-core autoconf2.1 autoconf2.5 libpkgconf3 autoconf pkgconf pkg-config
+    - name: opam
+      run: |
+        curl -LO https://github.com/fdopen/opam-repository-mingw/releases/download/0.0.0.2/opam64.tar.xz
+        tar -xf opam64.tar.xz
+        opam64/install.sh
+        opam init default "https://github.com/fdopen/opam-repository-mingw.git#opam2" -c "ocaml-variants.4.12.0+mingw64c" --disable-sandboxing
+      shell: C:\cygwin\bin\bash.EXE --login --norc -eo pipefail -o igncr '{0}'
     - name: git config
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
     - name: checkout
       uses: actions/checkout@v2
-    - name: remove dnssd
-      run: |
-        Remove-Item -Recurse .\repo\win32\packages\upstream\dnssd.0.5.0
-        Get-Content .\repo\darwin\packages\local\vpnkit.local\opam | Where-Object { $_ -notmatch "dnssd" } | Set-Content .\repo\darwin\packages\local\vpnkit.local\opam_new
-        Move-Item -Force .\repo\darwin\packages\local\vpnkit.local\opam_new .\repo\darwin\packages\local\vpnkit.local\opam
     - name: build
       run: |
         cd $GITHUB_WORKSPACE
-        export PATH="/usr/local/bin:${PATH}"
-        unset OPAMROOT
-        make
+        eval $(opam env)
+        opam pin add vpnkit . -n
+        opam depext vpnkit -y
+        opam install vpnkit -y
       shell: C:\cygwin\bin\bash.EXE --login --norc -eo pipefail -o igncr '{0}'
     - name: artifacts
       uses: actions/upload-artifact@v2
