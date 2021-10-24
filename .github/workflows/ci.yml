@@ -12,21 +12,29 @@ jobs:
   build-vpnkit-exe:
     runs-on: windows-2019
     steps:
-    - uses: cygwin/cygwin-install-action@master
+    - name: cygwin
+      uses: cygwin/cygwin-install-action@master
       with:
         packages: git unzip rsync patch make m4 curl wget mingw64-x86_64-gcc-core pkgconf flexdll pkg-config autoconf2.1 autoconf2.5 autoconf
     - name: git config
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v2
-    - name: Build
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: remove dnssd
       run: |
         Remove-Item -Recurse .\repo\win32\packages\upstream\dnssd.0.5.0
         Get-Content .\repo\darwin\packages\local\vpnkit.local\opam | Where-Object { $_ -notmatch "dnssd" } | Set-Content .\repo\darwin\packages\local\vpnkit.local\opam_new
         Move-Item -Force .\repo\darwin\packages\local\vpnkit.local\opam_new .\repo\darwin\packages\local\vpnkit.local\opam
-        C:\cygwin\bin\bash.exe -c 'export PATH="/usr/local/bin:${PATH}" && unset OPAMROOT && make'
-    - name: Artifacts
+    - name: build
+      run: |
+        cd $GITHUB_WORKSPACE
+        export PATH="/usr/local/bin:${PATH}"
+        unset OPAMROOT
+        make
+      shell: C:\cygwin\bin\bash.EXE --login --norc -eo pipefail -o igncr '{0}'
+    - name: artifacts
       uses: actions/upload-artifact@v2
       with: 
         name: vpnkit
