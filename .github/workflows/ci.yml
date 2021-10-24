@@ -21,7 +21,7 @@ jobs:
         curl -LO https://github.com/fdopen/opam-repository-mingw/releases/download/0.0.0.2/opam64.tar.xz
         tar -xf opam64.tar.xz
         opam64/install.sh
-        opam init default "https://github.com/fdopen/opam-repository-mingw.git#opam2" -c "ocaml-variants.4.12.0+mingw64c" --disable-sandboxing
+        opam init default "https://github.com/fdopen/opam-repository-mingw.git#opam2" -c "ocaml-variants.4.11.2+mingw64c" --disable-sandboxing
       shell: C:\cygwin\bin\bash.EXE --login --norc -eo pipefail -o igncr '{0}'
     - name: git config
       run: |
