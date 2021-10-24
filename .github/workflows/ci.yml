@@ -15,7 +15,7 @@ jobs:
     - name: cygwin
       uses: cygwin/cygwin-install-action@master
       with:
-        packages: rsync patch diffutils curl make unzip git m4 perl mingw64-x86_64-gcc-core autoconf2.1 autoconf2.5 libpkgconf3 autoconf pkgconf pkg-config
+        packages: rsync patch diffutils curl make unzip git m4 perl mingw64-x86_64-gcc-core autoconf2.1 autoconf2.5 libpkgconf3 autoconf pkgconf pkg-config libuv-devel
     - name: opam
       run: |
         curl -LO https://github.com/fdopen/opam-repository-mingw/releases/download/0.0.0.2/opam64.tar.xz
