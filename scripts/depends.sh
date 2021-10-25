@@ -65,11 +65,6 @@ OPAMBUILDTEST=1 opam depext -u vpnkit
 # Debug a failure to find stringext's archive
 OPAMVERBOSE=1 opam install stringext -y
 
-# Don't run all the unit tests of all upstream packages in the universe
-# for speed. As a special exception we will run the tests for tcpip
-OPAMVERBOSE=1 opam install --deps-only tcpip -y
-OPAMVERBOSE=1 opam install tcpip -t
-
 opam install $(ls -1 ${OPAM_REPO}/packages/upstream) -y
 OPAMVERBOSE=1 opam install alcotest charrua-client-mirage -y
 OPAMVERBOSE=1 opam install --deps-only vpnkit -y
