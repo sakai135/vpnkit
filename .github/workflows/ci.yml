@@ -1,0 +1,66 @@
+name: Build
+
+on:
+  push:
+
+jobs:
+  
+  build-vpnkit-exe:
+    runs-on: windows-2019
+    steps:
+    - name: cygwin
+      uses: cygwin/cygwin-install-action@master
+      with:
+        packages: rsync patch diffutils curl make unzip git m4 perl mingw64-x86_64-gcc-core autoconf2.1 autoconf2.5 libpkgconf3 autoconf pkgconf pkg-config
+    - name: opam
+      run: |
+        curl -LO https://github.com/fdopen/opam-repository-mingw/releases/download/0.0.0.2/opam64.tar.xz
+        tar -xf opam64.tar.xz
+        opam64/install.sh
+        opam init default "https://github.com/fdopen/opam-repository-mingw.git#opam2" -c "ocaml-variants.4.12.0+mingw64c" --disable-sandboxing
+      shell: C:\cygwin\bin\bash.EXE --login --norc -eo pipefail -o igncr '{0}'
+    - name: git config
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: build
+      run: |
+        cd $GITHUB_WORKSPACE
+        eval $(opam config env)
+        unset OPAMROOT
+        make vpnkit.exe
+      shell: C:\cygwin\bin\bash.EXE --login --norc -eo pipefail -o igncr '{0}'
+    - name: artifacts
+      uses: actions/upload-artifact@v2
+      with: 
+        name: vpnkit
+        path: vpnkit.exe
+
+  build-vpnkit-tap-vsockd:
+    needs: build-vpnkit-exe
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: docker build -t vpnkit-tap-vsockd ./c/vpnkit-tap-vsockd
+    - name: Fetch vpnkit.exe
+      uses: actions/download-artifact@v2
+      with:
+        name: vpnkit
+    - name: Package
+      run: |
+        CONTAINER_ID=$(docker create vpnkit-tap-vsockd)
+        docker cp $CONTAINER_ID:/sbin/vpnkit-tap-vsockd ./vpnkit-tap-vsockd
+        sha256sum vpnkit-tap-vsockd | tee vpnkit-tap-vsockd.sha256
+        sha256sum vpnkit.exe | tee vpnkit.exe.sha256
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with: 
+        name: vpnkit
+        path: |
+          vpnkit-tap-vsockd
+          vpnkit-tap-vsockd.sha256
+          vpnkit.exe
+          vpnkit.exe.sha256
