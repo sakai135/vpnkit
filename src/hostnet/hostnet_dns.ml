@@ -367,7 +367,7 @@ struct
         let id = request.id in
         let detail =
           { request.detail with Dns.Packet.qr = Dns.Packet.Response;
-                                ra = true; rcode = Dns.Packet.NXDomain
+                                ra = true; rcode = Dns.Packet.NoError
           } in
         let questions = request.questions in
         let authorities = [] and additionals = [] and answers = []
